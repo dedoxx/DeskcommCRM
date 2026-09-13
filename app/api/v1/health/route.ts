@@ -43,7 +43,8 @@ type MotivoDeFalha =
 
 type Check = {
   status: CheckStatus;
-  latency_ms: number;
+  latency_ms?: number;
+  canal?: string;
   error?: string;
   reason?: MotivoDeFalha;
   /** Protocolo + host + porta que tentamos. Só com `?verbose=1` autenticado. */
@@ -261,16 +262,41 @@ function semAlvo(check: Check): Check {
   return error === undefined ? resto : { ...resto, error: "erro_ao_consultar" };
 }
 
+/**
+ * Canal oficial da Meta (SPEC-DEV-01).
+ * Não publica o alvo para chamadas anônimas — passa pelo mesmo filtro de redação.
+ */
+function checkCanalMeta(): Check {
+  return {
+    status: "ok",
+    canal: "meta",
+    target: "https://graph.facebook.com",
+  };
+}
+
 export async function GET(req: NextRequest) {
+  const canalConfigurado = (env.WHATSAPP_CHANNEL?.trim() || "waha").toLowerCase();
+  const isMeta = canalConfigurado === "meta";
+
   const [supabase, redis, waha] = await Promise.all([
     checkSupabase(),
     checkRedis(),
-    checkWaha(),
+    isMeta ? Promise.resolve(null) : checkWaha(),
   ]);
 
   const verboso = req.nextUrl.searchParams.get("verbose") === "1" && segredoInternoConfere(req);
   const filtrar = verboso ? (c: Check) => c : semAlvo;
-  const checks = { supabase: filtrar(supabase), redis: filtrar(redis), waha: filtrar(waha) };
+
+  const checks: Record<string, Check> = {
+    supabase: filtrar(supabase),
+    redis: filtrar(redis),
+  };
+
+  if (isMeta) {
+    checks.canal = filtrar(checkCanalMeta());
+  } else if (waha) {
+    checks.waha = filtrar(waha);
+  }
 
   const anyDown = Object.values(checks).some((c) => c.status === "down");
   const anyDegraded = Object.values(checks).some((c) => c.status === "degraded");

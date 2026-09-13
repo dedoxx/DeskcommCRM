@@ -136,6 +136,20 @@ const schema = z.object({
    */
   SUPABASE_DB_ADMIN_URL: z.string().optional().default(""),
 
+  /**
+   * Canal primário de WhatsApp da instalação (SPEC-DEV-01).
+   *
+   * 'waha' (default) = transporte WAHA (auto-hospedado).
+   * 'meta' = WhatsApp Cloud API oficial da Meta (lib/channels/meta/).
+   *
+   * ⚠️ `z.string().optional().default("waha")` e JAMAIS `z.enum`.
+   * Ver comentário em AI_BUDGET_ENFORCEMENT sobre o modo de falha deste arquivo:
+   * safeParse lança em schema que recusa, e no Next isso derrubaria o app inteiro
+   * na primeira requisição se o operador digitasse um valor inesperado.
+   * Valor desconhecido cai no default ("waha"), sem lançar.
+   */
+  WHATSAPP_CHANNEL: z.string().optional().default("waha"),
+
   // WAHA
   WAHA_API_BASE_URL: required("WAHA_API_BASE_URL"),
   WAHA_API_KEY: required("WAHA_API_KEY"),

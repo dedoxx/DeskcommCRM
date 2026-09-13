@@ -55,6 +55,10 @@ curl -s -o /dev/null -w "%{http_code}\n" https://<DOMAIN>/
 # 404      = labels perdidas, refaça o deploy com os dois -f
 ```
 
+### 2.1 Health check e seleção de canal
+
+O endpoint `/api/v1/health` monitora a saúde das dependências essenciais. Em instalações que utilizam a WhatsApp Cloud API oficial da Meta (sem container WAHA), configure `WHATSAPP_CHANNEL=meta` no `.env` para que o health check não exija o container do WAHA e reporte o canal oficial como saudável.
+
 ---
 
 ## 3. Fluxo completo (do código à produção)
