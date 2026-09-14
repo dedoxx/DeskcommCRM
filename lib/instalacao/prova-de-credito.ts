@@ -21,6 +21,7 @@
 import { normalizarErro } from "@/lib/agent-engine/edge/llm/run-model-call";
 import {
   cabecalhosDeAtribuicaoOpenRouter,
+  DEEPSEEK_ENDPOINT,
   OPENROUTER_ENDPOINT,
 } from "@/lib/agent-engine/edge/llm/providers";
 
@@ -65,6 +66,12 @@ export function montarRequisicaoDeProva(
     case "openai":
       return {
         url: "https://api.openai.com/v1/chat/completions",
+        headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json" },
+        body: { model: modelo, max_tokens: 1, messages: msg },
+      };
+    case "deepseek":
+      return {
+        url: `${DEEPSEEK_ENDPOINT}/chat/completions`,
         headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json" },
         body: { model: modelo, max_tokens: 1, messages: msg },
       };

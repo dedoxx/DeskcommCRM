@@ -40,6 +40,11 @@ const envSchema = z.object({
   // Consertar a irmã da OpenAI e deixar esta é o modo de falha desta família:
   // ao mexer aqui, confira as três de uma vez.
   OPENROUTER_API_KEY: z.string().min(1).optional(),
+  // A QUARTA irmã: DeepSeek fala a API da OpenAI. Fallback de plataforma para
+  // agentes configurados com provider 'deepseek' quando a organização não tem
+  // credencial BYOK ativa/validada. Sem esta linha no schema, `loadEnv` expurga
+  // a chave do objeto parseado e o turno cai em `LlmNotConfiguredError`.
+  DEEPSEEK_API_KEY: z.string().min(1).optional(),
   // Modelo default do agente quando a org não define o dela (knob, nunca constante).
   AGENT_DEFAULT_MODEL: z.string().min(1).default('claude-sonnet-4-5'),
   // Teto de conexões por pool do pg. Sem valor = pg decide (default 10).

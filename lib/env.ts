@@ -203,6 +203,10 @@ const schema = z.object({
   VERCEL_AI_GATEWAY_URL: z.string().optional().default(""),
   ANTHROPIC_API_KEY: z.string().optional().default(""),
   OPENAI_API_KEY: z.string().optional().default(""),
+  // DeepSeek: alternativa de baixo custo por token compatível com a API da OpenAI.
+  // Fallback de plataforma para agentes configurados com provider 'deepseek' quando
+  // a organização não possui chave BYOK em ai_provider_credentials.
+  DEEPSEEK_API_KEY: z.string().optional().default(""),
 
   // Fusão (Fase 4): DONO ÚNICO dos eventos ai_agent.dispatch_requested.
   // 'engine' (default) = o worker agent-engine é o único consumidor (o cron

@@ -32,6 +32,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 import { OPENROUTER_BASE_URL, resolveLanguageModel, type ModelId } from "./gateway";
 
+const DEEPSEEK_BASE_URL = "https://api.deepseek.com/v1";
+
 export interface ModeloResolvido {
   model: LanguageModel;
   /** Para o log: qual modelo e de onde veio a decisão. */
@@ -287,6 +289,8 @@ function instanciar(
       return createGoogleGenerativeAI({ apiKey })(modelId);
     case "openrouter":
       return createOpenAI({ apiKey, baseURL: baseUrl ?? OPENROUTER_BASE_URL })(modelId);
+    case "deepseek":
+      return createOpenAI({ apiKey, baseURL: DEEPSEEK_BASE_URL })(modelId);
     default:
       return null;
   }

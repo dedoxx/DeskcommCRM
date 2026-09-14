@@ -133,8 +133,11 @@ export async function GET(req: NextRequest) {
 
 function chaveDoAmbiente(provider: string): string {
   return (
-    { anthropic: "ANTHROPIC_API_KEY", openai: "OPENAI_API_KEY", openrouter: "OPENROUTER_API_KEY" }[
-      provider
-    ] ?? "__inexistente__"
+    {
+      anthropic: "ANTHROPIC_API_KEY",
+      openai: "OPENAI_API_KEY",
+      openrouter: "OPENROUTER_API_KEY",
+      deepseek: "DEEPSEEK_API_KEY",
+    }[provider] ?? "__inexistente__"
   );
 }

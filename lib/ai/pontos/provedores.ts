@@ -83,6 +83,16 @@ export const PROVEDORES = [
     ondePegarAChave: "https://openrouter.ai/keys",
     prefixoDaChave: "sk-or-…",
   },
+  {
+    id: "deepseek",
+    rotulo: "DeepSeek",
+    quandoUsar:
+      "Alternativa de custo baixo por token, com boa qualidade em português. Fala a mesma API da OpenAI, então aceita apontar para outro endpoint compatível.",
+    aceitaEndpointProprio: true,
+    catalogoSincronizavel: true,
+    ondePegarAChave: "https://platform.deepseek.com/api_keys",
+    prefixoDaChave: "sk-…",
+  },
 ] as const satisfies readonly ProvedorSuportado[];
 // `as const satisfies` e não anotação de tipo: a anotação apagaria os literais
 // e `Provider` viraria `string`, deixando o compilador aceitar qualquer texto

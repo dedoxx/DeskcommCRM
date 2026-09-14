@@ -20,6 +20,14 @@ const PROVIDER_DEFAULT: Record<string, ModelCapabilities> = {
   anthropic: NATIVE,
   openai: NATIVE,
   google: NATIVE,
+  // Medido contra a API real (14/Set/2026, https://api.deepseek.com/v1/chat/completions,
+  // modelo deepseek-flash) com PNG 32x32 sólido embutido como data URL:
+  //   PNG VERMELHO -> "Vermelho"
+  //   PNG PRETO    -> "Preta" (controle: descartou alucinação por viés da pergunta).
+  // Imagem nativa comprovada. Não usamos NATIVE porque foi medido imagem, não PDF;
+  // PDF chega como content part 'file' (caminho diferente) e não foi medido.
+  // Conservador por construção: só afirma nativo para o que sabemos que funciona.
+  deepseek: { image: true, pdf: false },
 };
 
 /**
