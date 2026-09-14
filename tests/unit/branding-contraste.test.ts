@@ -60,7 +60,7 @@ describe("extrairRegua — os pares saem do globals.css, nunca de lista à mão"
     expect(REGUA.rampaDoProduto).toHaveLength(11);
     expect(REGUA.rampaDoProduto[6]).toBe("#506d48");
     expect(REGUA.claro.neutros).toHaveLength(11);
-    expect(REGUA.escuro.neutros[9]).toBe("#161510");
+    expect(REGUA.escuro.neutros[9]).toBe("#0f172a");
     expect(REGUA.claro.base.map((b) => b.chave)).toEqual([
       "--color-bg",
       "--color-surface",
@@ -88,7 +88,7 @@ describe("extrairRegua — os pares saem do globals.css, nunca de lista à mão"
     // No escuro o token é o literal `rgba(130,160,119,0.16)` — verde Sage cru, sem
     // referência à rampa. É por isso que ele precisa ser REANCORADO na derivação.
     expect(REGUA.escuro.indices.soft).toBeNull();
-    expect(REGUA.escuro.alfaDoSoft).toBeCloseTo(0.16, 6);
+    expect(REGUA.escuro.alfaDoSoft).toBeCloseTo(0.12, 6);
   });
 
   it("enumera o conjunto esperado de papéis e pares (guarda de vacuidade)", () => {
@@ -119,9 +119,9 @@ describe("extrairRegua — os pares saem do globals.css, nunca de lista à mão"
     const razao = (papel: string, superficie: string) =>
       pares.find((p) => p.papel === papel && p.superficie === superficie)?.razao ?? 0;
 
-    expect(razao("--color-accent", "--color-bg")).toBeCloseTo(5.51, 2);
-    expect(razao(":focus-visible/outline", "--color-bg")).toBeCloseTo(3.79, 2);
-    expect(razao(":focus-visible/outline", "--color-surface-elevated")).toBeCloseTo(3.6, 2);
+    expect(razao("--color-accent", "--color-bg")).toBeCloseTo(5.54, 2);
+    expect(razao(":focus-visible/outline", "--color-bg")).toBeCloseTo(3.82, 2);
+    expect(razao(":focus-visible/outline", "--color-surface-elevated")).toBeCloseTo(3.65, 2);
   });
 
   it("a Sage inteira, como está no CSS, cabe nos pisos", () => {
@@ -295,7 +295,7 @@ describe("derivarMarca — as 16 sementes adversariais", () => {
     // O literal `rgba(130, 160, 119, 0.16)` sobreviveria intacto a qualquer override da
     // rampa — seria um pedaço da NOSSA marca dentro da instalação do cliente.
     const azul = derivarMarca("#2563eb", REGUA);
-    expect(azul.escuro.accentSoft).toMatch(/^rgba\(\d+, \d+, \d+, 0\.16\)$/);
+    expect(azul.escuro.accentSoft).toMatch(/^rgba\(\d+, \d+, \d+, 0\.12\)$/);
     expect(azul.escuro.accentSoft).not.toContain("130, 160, 119");
     // E o claro continua opaco, como o tema declara.
     expect(azul.claro.accentSoft).toMatch(/^#[0-9a-f]{6}$/);
@@ -407,18 +407,16 @@ describe("marca acromática — o accent do produto permanece", () => {
         separacaoDoNeutro(regua, tema.grauDoAccent, tema.accent),
       ).toBeGreaterThanOrEqual(PISO_DE_SEPARACAO_DO_NEUTRO);
     }
-    // Os números exatos, fixados: 0,0681 no claro (accent-600 × neutral-600) e 0,1994 no
-    // escuro (accent-400 × neutral-400). São eles que mostram por que o piso do briefing
-    // (8, na convenção ×100 — ou seja 0,08 aqui) não podia ser aceito sem medir: ele
-    // reprovaria o controle positivo do próprio produto no tema claro.
-    expect(separacaoDoNeutro(REGUA.claro, marca.claro.grauDoAccent, marca.claro.accent)).toBeCloseTo(0.0681, 4);
-    expect(separacaoDoNeutro(REGUA.escuro, marca.escuro.grauDoAccent, marca.escuro.accent)).toBeCloseTo(0.1994, 4);
-    expect(separacaoDoNeutro(REGUA.claro, marca.claro.grauDoAccent, marca.claro.accent)).toBeLessThan(0.08);
+    // Os números exatos, fixados na paleta slate: 0,1063 no claro (accent-600 × neutral-600)
+    // e 0,0983 no escuro (accent-400 × neutral-400), ambos confortavelmente acima do piso
+    // de separação (0,05).
+    expect(separacaoDoNeutro(REGUA.claro, marca.claro.grauDoAccent, marca.claro.accent)).toBeCloseTo(0.1063, 4);
+    expect(separacaoDoNeutro(REGUA.escuro, marca.escuro.grauDoAccent, marca.escuro.accent)).toBeCloseTo(0.0983, 4);
 
     // Controle negativo: um accent cinza reprovaria as duas guardas. Sem esta linha, os
     // pisos acima poderiam ser satisfeitos por qualquer coisa.
-    expect(hexParaOklch("#5d594f").C).toBeLessThan(PISO_DE_CROMA);
-    expect(deltaEOklab("#5d594f", "#5d594f")).toBe(0);
+    expect(hexParaOklch("#475569").C).toBeLessThan(PISO_DE_CROMA);
+    expect(deltaEOklab("#475569", "#475569")).toBe(0);
   });
 
   it("navy NÃO é acromática — o gatilho não decide no quarto decimal", () => {
