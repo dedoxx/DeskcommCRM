@@ -22,12 +22,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { DotsThree, PencilSimple, Copy, Pause, Play, Archive } from "@/lib/ui/icons";
+import { DotsThree, PencilSimple, Copy, Pause, Play, Archive, Trash } from "@/lib/ui/icons";
 import { useT } from "@/hooks/i18n/useT";
 import { deriveAgentStatus } from "./AgentStatusBadge";
 import type { AgentRow } from "@/hooks/ai/useAgent";
 import {
   archiveAgentAction,
+  deleteAgentAction,
   duplicateAgentAction,
   pauseAgentAction,
   unpauseAgentAction,
@@ -44,6 +45,7 @@ export function AgentRowMenu({ agent }: Props) {
   const [isPending, startTransition] = useTransition();
   const [renameOpen, setRenameOpen] = useState(false);
   const [archiveOpen, setArchiveOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const status = deriveAgentStatus(agent);
   const isPaused = status === "paused" || status === "draft";
@@ -102,7 +104,7 @@ export function AgentRowMenu({ agent }: Props) {
           </DropdownMenuItem>
           {isPaused ? (
             <DropdownMenuItem
-              disabled={isArchived || agent.kind === "mcp_agent"}
+              disabled={isArchived}
               onSelect={() => run(t("Agent reativado."), () => unpauseAgentAction(agent.id))}
             >
               <Play size={14} aria-hidden className="mr-2" /> {t("Despausar")}
@@ -125,6 +127,16 @@ export function AgentRowMenu({ agent }: Props) {
             className="text-destructive focus:text-destructive"
           >
             <Archive size={14} aria-hidden className="mr-2" /> {t("Arquivar")}
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onSelect={(e) => {
+              e.preventDefault();
+              setDeleteOpen(true);
+            }}
+            className="text-destructive focus:text-destructive"
+          >
+            <Trash size={14} aria-hidden className="mr-2" /> {t("Excluir")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -155,6 +167,32 @@ export function AgentRowMenu({ agent }: Props) {
               }
             >
               {t("Arquivar")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("Excluir")} &ldquo;{agent.name}&rdquo;?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t(
+                "O agent sai da lista e deixa de responder. As conversas e o histórico de versões são preservados para auditoria.",
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("Cancelar")}</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() =>
+                run(t("Agent excluído."), () => deleteAgentAction(agent.id))
+              }
+            >
+              {t("Excluir")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

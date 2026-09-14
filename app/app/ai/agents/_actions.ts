@@ -108,7 +108,7 @@ export async function unpauseAgentAction(id: string): Promise<ActionResult> {
     };
   const { error } = await admin
     .from("ai_agents")
-    .update({ paused_at: null, updated_at: new Date().toISOString() })
+    .update({ paused_at: null, is_active: true, updated_at: new Date().toISOString() })
     .eq("id", id)
     .eq("organization_id", activeOrg.orgId);
   if (error) return { ok: false, error: "internal_error", message: error.message };
@@ -161,6 +161,65 @@ export async function archiveAgentAction(id: string): Promise<ActionResult> {
     published_version_id: null,
   };
   if (existing.kind !== "mcp_agent") updates.is_active = false;
+
+  const { error } = await admin
+    .from("ai_agents")
+    .update(updates)
+    .eq("id", id)
+    .eq("organization_id", activeOrg.orgId);
+  if (error) return { ok: false, error: "internal_error", message: error.message };
+
+  void audit({
+    action: "ai_agent.archived",
+    actorUserId: authUser.id,
+    organizationId: activeOrg.orgId,
+    resourceType: "ai_agent",
+    resourceId: id,
+    metadata: { kind: existing.kind },
+  });
+
+  revalidatePath("/app/ai/agents");
+  return { ok: true };
+}
+
+export async function deleteAgentAction(id: string): Promise<ActionResult> {
+  if (!UUID_RX.test(id)) return { ok: false, error: "invalid_request" };
+  const guard = await ensureAdmin();
+  if (guard.kind === "fail") return guard.result;
+  const { authUser, activeOrg } = guard;
+
+  const admin = createAdminClient();
+  const { data: existing } = await admin
+    .from("ai_agents")
+    .select("id, kind, is_default, is_active, archived_at")
+    .eq("id", id)
+    .eq("organization_id", activeOrg.orgId)
+    .maybeSingle();
+
+  if (!existing) return { ok: false, error: "not_found" };
+  if (existing.is_default) {
+    return {
+      ok: false,
+      error: "state_conflict",
+      message: "Este é o agente padrão. Torne outro agente o padrão antes de excluir.",
+    };
+  }
+
+  /**
+   * Exclusão lógica (soft delete) do agente.
+   *
+   * Espelha a rota DELETE /api/v1/ai/agents/[id]:
+   * - Desliga is_active, carimba archived_at e limpa published_version_id para tirar
+   *   o agente da lista e parar imediatamente o atendimento nos workers e no dispatcher.
+   * - Funciona tanto para agentes ativos quanto para arquivados que o operador deseja remover.
+   * - Emite ai_agent.archived no audit_log.
+   */
+  const updates: Record<string, unknown> = {
+    updated_at: new Date().toISOString(),
+    archived_at: new Date().toISOString(),
+    published_version_id: null,
+    is_active: false,
+  };
 
   const { error } = await admin
     .from("ai_agents")

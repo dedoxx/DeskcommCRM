@@ -644,10 +644,14 @@ export const DICIONARIO: Traducoes = {
   "Agent reativado.": { es: "Agente reactivado." },
   "Agent pausado.": { es: "Agente pausado." },
   "Agent arquivado.": { es: "Agente archivado." },
+  "Agent excluído.": { es: "Agente eliminado." },
   Falha: { es: "Error" },
   "Erro ao executar ação.": { es: "Error al ejecutar la acción." },
   "O agent deixa de responder gatilhos e some das listas ativas. Versões publicadas são preservadas para auditoria. Não é possível desarquivar pela UI nesta versão.": {
     es: "El agente deja de responder disparadores y desaparece de las listas activas. Las versiones publicadas se conservan para auditoría. No es posible desarchivar desde la interfaz en esta versión.",
+  },
+  "O agent sai da lista e deixa de responder. As conversas e o histórico de versões são preservados para auditoria.": {
+    es: "El agente sale de la lista y deja de responder. Las conversaciones y el historial de versiones se conservan para auditoría.",
   },
   "Renomear agent": { es: "Renombrar agente" },
   "Apenas o nome interno muda. Versões publicadas e histórico são preservados.": {
